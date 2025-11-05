@@ -1155,7 +1155,7 @@ function getPendingLitiges() {
         $sql = "SELECT d.id_debloquer, d.id_vendeur, d.raison, u.nom, u.prenom, u.email
                 FROM debloquer d
                 JOIN Utilisateur u ON d.id_vendeur = u.id_user
-                WHERE d.date_deblocage IS NULL OR d.date_deblocage = '0000-00-00 00:00:00'
+                WHERE d.date_deblocage IS NULL
                 ORDER BY d.id_debloquer ASC";
         $stmt = $pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

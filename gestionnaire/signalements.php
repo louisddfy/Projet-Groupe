@@ -11,54 +11,6 @@ if (!usergestion()) {
 $user = $_SESSION['connectUser'];
 $message = '';
 $messageType = '';
-
-// 2. Traitement des actions (suppression)
-if (isset($_GET['action'])) {
-    $action = $_GET['action'];
-    $id_produit = isset($_GET['id_produit']) ? (int)$_GET['id_produit'] : 0;
-    $id_user_reporter = isset($_GET['id_user']) ? (int)$_GET['id_user'] : 0;
-
-    if ($action === 'delete_report' && $id_produit > 0 && $id_user_reporter > 0) {
-        if (deleteSignalement($id_user_reporter, $id_produit)) {
-            $message = "✅ Le signalement a été traité et supprimé avec succès.";
-            $messageType = 'success';
-        } else {
-            $message = "❌ Erreur lors de la suppression du signalement.";
-            $messageType = 'error';
-        }
-    } elseif ($action === 'delete_product' && $id_produit > 0) {
-        if (deleteProduct($id_produit)) {
-            // La fonction deleteProduct supprime aussi les signalements liés grâce aux contraintes de la BDD (ON DELETE CASCADE)
-            // ou il faudrait le faire manuellement si ce n'est pas le cas.
-            $message = "✅ Le produit et tous ses signalements associés ont été supprimés.";
-            $messageType = 'success';
-        } else {
-            $message = "❌ Erreur lors de la suppression du produit.";
-            $messageType = 'error';
-        }
-    } elseif ($action === 'toggle_vendeur' && isset($_GET['id_vendeur'])) {
-        $id_vendeur = (int)$_GET['id_vendeur'];
-        if (toggleVendeurStatus($id_vendeur)) {
-            $message = "✅ Le statut du vendeur a été modifié avec succès.";
-            $messageType = 'success';
-        } else {
-            $message = "❌ Erreur lors de la modification du statut du vendeur.";
-            $messageType = 'error';
-        }
-    }
-
-    // Redirection pour nettoyer l'URL et afficher le message
-    header("Location: signalements.php?msg=" . urlencode($message) . "&type=" . $messageType);
-    exit;
-}
-
-// Affichage des messages après redirection
-if (isset($_GET['msg']) && isset($_GET['type'])) {
-    $message = htmlspecialchars($_GET['msg']);
-    $messageType = htmlspecialchars($_GET['type']);
-}
-
-// 3. Récupération des données
 $signalements = getAllSignalements();
 ?>
 <!DOCTYPE html>
@@ -137,8 +89,8 @@ $signalements = getAllSignalements();
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit Signalé</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendeur</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prévente</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendeur signalé</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Signalé par</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stats (Signal./Part.)</th>
@@ -165,16 +117,12 @@ $signalements = getAllSignalements();
                                     <?php if ($peutBloquer): ?>
                                         <a href="?action=toggle_vendeur&id_vendeur=<?= $s['id_vendeur'] ?>" 
                                            onclick="return confirm('Le nombre de signalements est élevé. Voulez-vous bloquer ce vendeur ?')"
-                                           class="text-yellow-600 hover:text-yellow-900 mr-4" title="Bloquer le vendeur">Bloquer Vendeur</a>
+                                           class="text-red-600 hover:text-red-900 mr-4" title="Bloquer le vendeur">Bloquer</a>
                                     <?php endif; ?>
 
                                     <a href="?action=delete_report&id_produit=<?= $s['id_produit'] ?>&id_user=<?= $s['id_user'] ?>" 
                                        onclick="return confirm('Êtes-vous sûr de vouloir marquer ce signalement comme traité ?')"
                                        class="text-green-600 hover:text-green-900 mr-4" title="Marquer comme traité">Ignorer</a>
-                                    
-                                    <a href="?action=delete_product&id_produit=<?= $s['id_produit'] ?>" 
-                                       onclick="return confirm('ATTENTION : Ceci supprimera définitivement le produit et tous ses signalements. Êtes-vous sûr ?')"
-                                       class="text-red-600 hover:text-red-900" title="Supprimer le produit">Supprimer Produit</a>
 
                                 </td>
                             </tr>
