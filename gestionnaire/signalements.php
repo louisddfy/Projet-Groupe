@@ -11,6 +11,14 @@ if (!usergestion()) {
 $user = $_SESSION['connectUser'];
 $message = '';
 $messageType = '';
+
+// 2. Gérer les actions via la fonction dédiée
+handleSignalementActions();
+
+if (isset($_GET['msg'])) {
+    $message = htmlspecialchars($_GET['msg']);
+    $messageType = htmlspecialchars($_GET['type']);
+}
 $signalements = getAllSignalements();
 ?>
 <!DOCTYPE html>

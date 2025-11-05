@@ -1231,4 +1231,26 @@ function getResolvedLitiges() {
         return [];
     }
 }
+
+function handleSignalementActions() {
+    if (isset($_GET['action']) && $_GET['action'] === 'delete_report' && isset($_GET['id_produit']) && isset($_GET['id_user'])) {
+        if (!usergestion()) {
+            // Sécurité : on ne devrait jamais arriver ici si la page appelante vérifie déjà, mais c'est une bonne pratique.
+            return ['message' => 'Accès non autorisé.', 'type' => 'error'];
+        }
+
+        $id_produit = (int)$_GET['id_produit'];
+        $id_user = (int)$_GET['id_user'];
+
+        if (deleteSignalement($id_user, $id_produit)) {
+            $message = "✅ Le signalement a été supprimé avec succès.";
+            $messageType = 'success';
+        } else {
+            $message = "❌ Une erreur est survenue lors de la suppression du signalement.";
+            $messageType = 'error';
+        }
+        header("Location: signalements.php?msg=" . urlencode($message) . "&type=" . $messageType);
+        exit;
+    }
+}
 ?>
